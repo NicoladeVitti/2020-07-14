@@ -5,9 +5,11 @@
 package it.polito.tdp.PremierLeague;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.PremierLeague.model.Model;
+import it.polito.tdp.PremierLeague.model.Team;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -35,7 +37,7 @@ public class FXMLController {
     private Button btnSimula; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbSquadra"
-    private ComboBox<?> cmbSquadra; // Value injected by FXMLLoader
+    private ComboBox<Team> cmbSquadra; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -49,16 +51,60 @@ public class FXMLController {
     @FXML
     void doClassifica(ActionEvent event) {
 
+    	Team t = this.cmbSquadra.getValue();
+    	List<Team> t1 = model.getSquadreSopra(t);
+    	
+    	txtResult.appendText("SQUADRE BATTUTE:\n");
+
+    	for(Team s : t1) {
+    		txtResult.appendText(s.getName()+"\n");
+    	}
+    	
+    	List<Team> t2 = model.getSquadreSotto(t);
+    	
+    	txtResult.appendText("SQUADRE CHE HA BATTUTO:\n");
+
+    	for(Team s : t2) {
+    		txtResult.appendText(s.getName()+"\n");
+    	}
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-
+    	
+    	model.creaGrafo();
+    	txtResult.appendText("#ARCHI: "+model.getNumArchi());
+    	txtResult.appendText("#VERTICI: "+model.getNumVertici()+"\n");
+    	
+    	this.cmbSquadra.getItems().clear();
+    	this.cmbSquadra.getItems().addAll(model.getSquadre());
+    	
     }
 
     @FXML
     void doSimula(ActionEvent event) {
+    	
+    	String num = this.txtN.getText();
+    	String c = this.txtX.getText();
+    	Integer X;
+    	Integer N;
+    	
+    	try {
+    		N = Integer.parseInt(num);
+    		X = Integer.parseInt(c);
+    	}
+    	catch(NumberFormatException e) {
+    		txtResult.appendText("ERRORE: FORMATO DEL NUMERO DI REPORTER O DELLA SOGLIA NON CORRETTO");
+    		return; 
+    	}
+    	
+    	model.init(N,X);
+    	model.simula();
+    	
+		txtResult.appendText("NUMERO MEDIO DI REPORT PER OGNI PARTITA: "+model.getMedia()+"\n");
+		txtResult.appendText("NUMERO TOTALE DI PARTITE PER CUI IL NUMERO TOTALE DI REPORTER E' SOTTO LA SOGLIA: "+model.getSottoSoglia()+"\n");
 
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
